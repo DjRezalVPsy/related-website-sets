@@ -1,6 +1,6 @@
 # Related Website Sets Submission Guidelines 
 
-Related Website Sets ("RWS") provides a framework for developers to declare relationships among sites, to enable limited cross-site cookie access for specific, user-facing purposes. This framework may help user agents, such as the Chrome browser ("Chrome"), to decide when to allow or deny a site access to their cookies when in a third-party context.
+Related Website Sets ("RWS") provides a framework for developers to declare relationships among sites, to enable limited cross-site data access for specific, user-facing purposes. This framework may help user agents, such as the Chrome browser ("Chrome"), to decide when to allow or deny a site access to their cookies when in a third-party context.
 RWS is a [Privacy Sandbox](https://privacysandbox.com/) proposal being incubated in the W3C's [WICG](https://www.w3.org/community/wicg/). For a full overview, consult the [explainer](https://github.com/privacycg/first-party-sets). The Related Website Sets Submission Guidelines ("Guidelines") are put forth by Chrome to define requirements and expectations for sets submitted by developers. Chrome remains committed to pursuing [standardization](https://www.w3.org/standards/) of RWS through engaging with developers, other browser vendors, and other interested parties.
 
 ## Definitions
@@ -83,21 +83,18 @@ It is important that users' interests are protected from invalid submissions, an
 ### Set-level technical validation
 
 Upon submission of a PR, a series of technical checks will run on GitHub to verify the following: 
-<ul>
-<li>Each domain must be prefixed by the https:// scheme. Sets may only include domains served over secure (https://) schemes. </li>
-<li>Each domain must be a <a href="https://github.com/publicsuffix/list/wiki/Format#:~:text=The%20registered%20or%20registrable%20domain%20is%20the%20public%20suffix%20plus%20one%20additional%20label.">registrable domain</a> (i.e., eTLD+1 using a snapshot (refreshed every 6 months) of the <a href="https://publicsuffix.org/">Public Suffix List (PSL)</a> to determine eTLD) at the time of submission. </li>
-<li>Note that RWS uses the qualification of "eTLD+1 with a secure transport scheme" to determine the boundaries of an entry, meaning that `https://example.com` and `https://a.example.com` should not both exist on `related_website_sets.JSON` as they share the same eTLD+1: `example.com`. However, this should not be an issue for the owner of `https://example.com`, as its and `https://a.example.com`'s cookies are not considered third-party to each other. Cookies are bounded by site, and since `https://a.example.com` is a subdomain of `https://example.com`, both origins have access to the same cookies (modulo the `Domain` attribute) since they are the same site. To learn more about what is considered cross-site vs same-site, [please read this article.](https://web.dev/articles/same-site-same-origin).</li>
-<li>Each domain must not already be present in the <a href="https://github.com/googlechrome/first-party-sets/blob/main/related_website_sets.JSON">canonical RWS list.</a></li>
-<li>Each domain must satisfy the /.well-known/ metadata requirement:</li>
-  <ul>
-    <li>The /.well-known/ metadata requirement demonstrates that the submitter has administrative access to the domains present in the set, since administrative access is required to modify the /.well-known/ file. This will help prevent unauthorized actors from adding domains to a set. </li>
-    <li>The primary domain must serve a JSON file at /.well-known/related-website-set.json (Note: list entries merged before September 15th 2023 may serve their well-known file at /.well-known/first-party-set.json instead; however, any changes to those entries will require that the primary and all members of the set must be served at /.well-known/related-website-set.json like any other entry). The contents of the file must be identical to the submission. Each member domain must serve a JSON file at /.well-known/related-website-set.json. The contents of the file must name the primary domain. These files must be maintained for the duration of the domain’s inclusion in the set.</li>
-    <li>Any changes to an existing RWS in the <a href="https://github.com/googlechrome/first-party-sets/blob/main/related_website_sets.JSON">canonical RWS list</a>  must also be reflected in that set's JSON files at /.well-known/related-website-set.json.</li>
-    <li>If an RWS owner wishes to remove a set entirely from the <a href="https://github.com/googlechrome/first-party-sets/blob/main/related_website_sets.JSON">canonical RWS list,</a> then that set's primary must serve a `404 (Not Found)` status code at their /.well-known/related-website-set.json endpoint to demonstrate a deliberate desire to remove the set.</li>
-		<li>Example for  primary.com/.well-known/related-website-set.json:</li>
-  </ul>
-<li>The formatting of the JSON submitted must conform to the output of Python's [json.dumps](https://docs.python.org/3/library/json.html#json.dumps) function with the options `ensure_ascii=False` and `indent=2`.</li>
-</ul>
+
+- The formatting of the JSON submitted must conform to the output of Python's [json.dumps](https://docs.python.org/3/library/json.html#json.dumps) function with the options `ensure_ascii=False` and `indent=2`.
+- Each domain must be prefixed by the https:// scheme. Sets may only include domains served over secure (https://) schemes.
+- Each domain must be a <a href="https://github.com/publicsuffix/list/wiki/Format#:~:text=The%20registered%20or%20registrable%20domain%20is%20the%20public%20suffix%20plus%20one%20additional%20label.">registrable domain</a> (i.e., eTLD+1 using a snapshot (refreshed every 6 months) of the <a href="https://publicsuffix.org/">Public Suffix List (PSL)</a> to determine eTLD) at the time of submission. 
+- Note that RWS uses the qualification of "eTLD+1 with a secure transport scheme" to determine the boundaries of an entry, meaning that `https://example.com` and `https://a.example.com` should not both exist on `related_website_sets.JSON` as they share the same eTLD+1: `example.com`. However, this should not be an issue for the owner of `https://example.com`, as its and `https://a.example.com`'s cookies are not considered third-party to each other. Cookies are bounded by site, and since `https://a.example.com` is a subdomain of `https://example.com`, both origins have access to the same cookies (modulo the `Domain` attribute) since they are the same site. To learn more about what is considered cross-site vs same-site, [please read this article](https://web.dev/articles/same-site-same-origin).
+- Each domain must not already be present in the <a href="https://github.com/googlechrome/first-party-sets/blob/main/related_website_sets.JSON">canonical RWS list.</a>
+- Each domain must satisfy the `/.well-known/` metadata requirement:
+    - The /.well-known/ metadata requirement demonstrates that the submitter has administrative access to the domains present in the set, since administrative access is required to modify the /.well-known/ file. This will help prevent unauthorized actors from adding domains to a set. 
+    - The primary domain must serve a JSON file at `/.well-known/related-website-set.json` (Note: list entries merged before September 15th 2023 may serve their well-known file at `/.well-known/first-party-set.json` instead; however, any changes to those entries will require that the primary and all members of the set must be served at `/.well-known/related-website-set.json` like any other entry). The contents of the file must be identical to the submission. Each member domain must serve a JSON file at /.well-known/related-website-set.json. The contents of the file must name the primary domain. These files must be maintained for the duration of the domain’s inclusion in the set.
+    - Any changes to an existing RWS in the <a href="https://github.com/googlechrome/first-party-sets/blob/main/related_website_sets.JSON">canonical RWS list</a>  must also be reflected in that set's JSON files at `/.well-known/related-website-set.json`.
+    - If an RWS owner wishes to remove a set entirely from the <a href="https://github.com/googlechrome/first-party-sets/blob/main/related_website_sets.JSON">canonical RWS list,</a> then that set's primary must serve a `404 (Not Found)` status code at their `/.well-known/related-website-set.json` endpoint to demonstrate a deliberate desire to remove the set.
+    - Example for  `primary.com/.well-known/related-website-set.json`:
 	
 ```json
 {
@@ -168,7 +165,7 @@ Example for associate1.com/.well-known/related-website-set.json:
 }
 ```
 
-The /.well-known/related-website-set.json file for set members must follow the schema specified below:
+The `/.well-known/related-website-set.json` file for set members must follow the schema specified below:
 
 ```json
 {
@@ -186,8 +183,8 @@ Additionally, more granular technical checks will also run on GitHub for service
 
 Service Domains must satisfy the following conditions:
 	<ul>
-		<li>Must not be crawlable. Service domains must have an X-Robots-Tag containing a 'noindex' or 'none' [value](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag#directives).</li>
-		<li>Must not have ads.txt.</li>
+		<li>Must not be crawlable. Service domains must have an `X-Robots-Tag` containing a 'noindex' or 'none' [value](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag#directives).</li>
+		<li>Must not have `ads.txt`.</li>
 <li>Must have a homepage that redirects to a different domain or results in 4xx (client error) or 5xx (server error).</li>
 	</ul>
 ccTLD variants must satisfy the following conditions:
@@ -229,6 +226,10 @@ In addition to the formation requirements and validation requirements above, set
 
 While there is no limit on the number of ccTLDs that may be associated with a single associated or service domain in the same set, a ccTLD variant inherits the restrictions imposed on its equivalent domain. For example, `requestStorageAccessFor(origin)` calls will be auto-rejected when called by a ccTLD variant which is an alias of a service domain.
 To test this behavior in Chrome, please consult the [Related Website Sets integration guide](https://developer.chrome.com/en/docs/privacy-sandbox/first-party-sets-integration/).
+
+Note: Browsers may select to use Related Website Set's domain relationships for other purposes. For example, Chrome's [IP Protection](https://github.com/GoogleChrome/ip-protection) proposal includes relying on RWS for the purposes of determining first-party and third-party contexts, but does not change RWS's Subset Types or Validation criteria.
+
+If a submitter is defining related sites for non-browser-storage use cases like IP address, it may be to address network-level performance optimization or access management. In these scenarios, it may be appropriate to utilize the Service subset type, which does not have a domain limit but does have ownership requirements.
 
 ## Set Lifetime
 

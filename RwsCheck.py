@@ -15,9 +15,7 @@ import json
 import requests
 
 from jsonschema import validate
-from urllib.request import urlopen
-from urllib.request import Request
-from publicsuffix2 import PublicSuffixList
+from publicsuffixlist import PublicSuffixList
 
 from RwsSet import RwsSet
 
@@ -235,9 +233,9 @@ class RwsCheck:
     def is_eTLD_Plus1(self, site):
         """A helper function for checking if a domain is etld+1 compliant
 
-        calls get_public suffix from the publicsuffix2 package on the provided
-        domain name, returns true if the domain name contains a public suffix,
-        else false
+        calls privatesuffix from the publicsuffixlist package on the provided
+        domain name, returns true if the domain name matches is its own shortest
+        private suffix, else false
 
         Args:
             site: a string corresponding to a domain name
@@ -246,9 +244,7 @@ class RwsCheck:
         """
         assert site is not None
         site = site.removeprefix("https://")
-        is_etldp1_or_etld = self.etlds.get_sld(site, strict=True) == site
-        is_etld = self.etlds.get_tld(site, strict=True) == site
-        return is_etldp1_or_etld and not is_etld
+        return self.etlds.privatesuffix(site, accept_unknown=False) == site
 
     def find_invalid_eTLD_Plus1(self, check_sets):
         """Checks if all domains are etld+1 compliant
@@ -292,23 +288,21 @@ class RwsCheck:
                     )
 
     def open_and_load_json(self, url):
-        """Calls urlopen and returns json from a site
+        """Calls requests.get and returns json from a site
 
-        Calls urlopena and json.load on a domain. Returns the json object.
+        Calls requests.get(...).json() on a domain. Returns the json object.
         This functionality is separated out here to make testing easier.
 
         Args:
             url: a domain that we want to load the json from
         """
-        req = Request(url=url, headers={"User-Agent": "Chrome"})
-        with urlopen(req) as json_file:
-            return json.load(json_file)
+        return requests.get(url, timeout=10, headers={"User-Agent": "Chrome"}).json()
 
     def check_list_sites(self, primary, site_list):
         """Checks that sites in a given list have the correct primary on their
         well-known page
 
-        Calls urlopen on a given list of sites, reads their json, and adds any
+        Calls self.open_and_load_json on a given list of sites, reads their json, and adds any
         sites that do not contain the passed in primary as their listed primary
         to the error list. Also catches and adds any exceptions when trying to
         open or read the url
